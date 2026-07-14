@@ -1,0 +1,250 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  controllerName="shopfloor.portal.controller.Login">
+  <Page showHeader="false" class="sfpShell">
+    <content>
+      <VBox visible="{/loginVisible}" class="sfpLoginPage" justifyContent="Center" alignItems="Center">
+        <VBox class="sfpLoginPanel">
+          <HBox class="sfpLoginHeader">
+            <core:Icon src="sap-icon://factory" class="sfpLoginIcon"/>
+            <VBox>
+              <Title text="Shop Floor Portal" level="H1" class="sfpLoginTitle"/>
+              <Text text="Premium manufacturing dashboard for real-time shop floor control" class="sfpLoginSubtitle"/>
+            </VBox>
+          </HBox>
+
+          <VBox class="sfpLoginBody">
+            <Input id="userId" placeholder="{i18n>login.userId}" value="{/user/id}" width="100%" class="sfpLoginInput"/>
+            <Input id="password" type="Password" placeholder="{i18n>login.password}" width="100%" submit="onLogin" class="sfpLoginInput"/>
+            <MessageStrip id="loginMsg" text="{i18n>login.error}" type="Error" visible="false" showIcon="true" class="sfpLoginMessage"/>
+            <Button text="{i18n>login.button}" press="onLogin" type="Emphasized" width="100%" icon="sap-icon://pushpin-off" class="sfpLoginButton"/>
+          </VBox>
+
+          <HBox justifyContent="Center" class="sfpLoginFooter">
+            <Text text="Designed for enterprise MES and production excellence" class="text-muted"/>
+          </HBox>
+        </VBox>
+      </VBox>
+
+      <VBox visible="{/appVisible}" class="sfpApp">
+        <OverflowToolbar class="sfpTopBar">
+          <HBox alignItems="Center" gap="0.5rem">
+            <core:Icon src="sap-icon://factory" class="sfpTopIcon"/>
+            <Title text="Shop Floor Portal" level="H2"/>
+          </HBox>
+          <ToolbarSpacer/>
+          <SearchField width="20rem" placeholder="Search orders, materials, plants" liveChange="onSearch"/>
+          <Select id="monthSelect" width="9rem" selectedKey="{/filters/date/month}" change="onMonthYearChange">
+            <items>
+              <core:Item key="" text="All Months"/>
+              <core:Item key="01" text="Jan"/>
+              <core:Item key="02" text="Feb"/>
+              <core:Item key="03" text="Mar"/>
+              <core:Item key="04" text="Apr"/>
+              <core:Item key="05" text="May"/>
+              <core:Item key="06" text="Jun"/>
+              <core:Item key="07" text="Jul"/>
+              <core:Item key="08" text="Aug"/>
+              <core:Item key="09" text="Sep"/>
+              <core:Item key="10" text="Oct"/>
+              <core:Item key="11" text="Nov"/>
+              <core:Item key="12" text="Dec"/>
+            </items>
+          </Select>
+          <Select id="yearSelect" width="9rem" selectedKey="{/filters/date/year}" change="onMonthYearChange"/>
+          <HBox class="sfpLiveStatus">
+            <Text text="●" class="sfpLiveDot" />
+            <Text text="Live SAP connection"/>
+          </HBox>
+          <Button icon="sap-icon://log" tooltip="Sign out" press="onLogout" type="Transparent"/>
+        </OverflowToolbar>
+
+        <IconTabBar expanded="true" class="sfpTabBar">
+          <items>
+            <IconTabFilter key="overview" text="Overview" icon="sap-icon://business-objects-experience">
+              <VBox class="sfpContent">
+                <FlexBox class="sfpKpiGrid" wrap="Wrap">
+                  <VBox class="sfpKpiCard">
+                    <HBox alignItems="Center" justifyContent="SpaceBetween">
+                      <HBox alignItems="Center" gap="0.75rem">
+                        <core:Icon src="sap-icon://factory" class="sfpKpiCardIcon sfpKpiIconFactory"/>
+                        <Text text="Active Production Orders" class="sfpKpiLabel"/>
+                      </HBox>
+                      <ObjectStatus text="Live" state="Success"/>
+                    </HBox>
+                    <Text text="{path: '/metrics/activeProductionOrders', formatter: '.formatNumberLarge'}" class="sfpKpiValue"/>
+                    <HBox class="sfpTrend" alignItems="Center" visible="{= ${/metrics/activeProductionOrders} > 0 }">
+                      <core:Icon src="sap-icon://trend-up"/>
+                      <Text text="+12.4% vs last week"/>
+                    </HBox>
+                    <HBox class="sfpTrend" alignItems="Center" visible="{= ${/metrics/activeProductionOrders} === 0 }">
+                      <core:Icon src="sap-icon://trend-down"/>
+                      <Text text="0% vs last week"/>
+                    </HBox>
+                    <HBox class="sfpSparkline" visible="{= ${/metrics/activeProductionOrders} > 0 }">
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                    </HBox>
+                    <Text text="Live active orders currently in execution across all production lines." class="sfpKpiDescription"/>
+                  </VBox>
+
+                  <VBox class="sfpKpiCard">
+                    <HBox alignItems="Center" justifyContent="SpaceBetween">
+                      <HBox alignItems="Center" gap="0.75rem">
+                        <core:Icon src="sap-icon://calendar" class="sfpKpiCardIcon sfpKpiIconCalendar"/>
+                        <Text text="Planned Orders" class="sfpKpiLabel"/>
+                      </HBox>
+                      <ObjectStatus text="On schedule" state="Information"/>
+                    </HBox>
+                    <Text text="{path: '/metrics/plannedOrders', formatter: '.formatNumberLarge'}" class="sfpKpiValue"/>
+                    <HBox class="sfpTrend warning" alignItems="Center" visible="{= ${/metrics/plannedOrders} > 0 }">
+                      <core:Icon src="sap-icon://trend"/>
+                      <Text text="+6.1% planning accuracy"/>
+                    </HBox>
+                    <HBox class="sfpTrend warning" alignItems="Center" visible="{= ${/metrics/plannedOrders} === 0 }">
+                      <core:Icon src="sap-icon://trend"/>
+                      <Text text="0% planning accuracy"/>
+                    </HBox>
+                    <HBox class="sfpSparkline" visible="{= ${/metrics/plannedOrders} > 0 }">
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                    </HBox>
+                    <Text text="Planned orders scheduled for the next production window and material readiness." class="sfpKpiDescription"/>
+                  </VBox>
+
+                  <VBox class="sfpKpiCard">
+                    <HBox alignItems="Center" justifyContent="SpaceBetween">
+                      <HBox alignItems="Center" gap="0.75rem">
+                        <core:Icon src="sap-icon://clipboard-approval" class="sfpKpiCardIcon sfpKpiIconQuantity"/>
+                        <Text text="Released Quantity" class="sfpKpiLabel"/>
+                      </HBox>
+                      <ObjectStatus text="Strong" state="Success"/>
+                    </HBox>
+                    <Text text="{path: '/metrics/releasedQuantity', formatter: '.formatNumberLarge'}" class="sfpKpiValue"/>
+                    <HBox class="sfpTrend" alignItems="Center" visible="{= ${/metrics/activeProductionOrders} > 0 }">
+                      <core:Icon src="sap-icon://activity-individual"/>
+                      <Text text="68% release rate"/>
+                    </HBox>
+                    <HBox class="sfpTrend" alignItems="Center" visible="{= ${/metrics/activeProductionOrders} === 0 }">
+                      <core:Icon src="sap-icon://activity-individual"/>
+                      <Text text="0% release rate"/>
+                    </HBox>
+                    <HBox class="sfpSparkline" visible="{= ${/metrics/activeProductionOrders} > 0 }">
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                    </HBox>
+                    <Text text="Released quantity ready for processing, showing shop-floor handoff momentum." class="sfpKpiDescription"/>
+                  </VBox>
+
+                  <VBox class="sfpKpiCard">
+                    <HBox alignItems="Center" justifyContent="SpaceBetween">
+                      <HBox alignItems="Center" gap="0.75rem">
+                        <core:Icon src="sap-icon://alert" class="sfpKpiCardIcon sfpKpiIconAlert"/>
+                        <Text text="Zero Quantity Orders" class="sfpKpiLabel"/>
+                      </HBox>
+                      <ObjectStatus text="Attention" state="Warning"/>
+                    </HBox>
+                    <Text text="{path: '/metrics/zeroQuantityOrders', formatter: '.formatNumberLarge'}" class="sfpKpiValue"/>
+                    <HBox class="sfpTrend warning" alignItems="Center" visible="{= ${/metrics/zeroQuantityOrders} > 0 }">
+                      <core:Icon src="sap-icon://show"/>
+                      <Text text="{/metrics/zeroQuantityOrders} alerts today"/>
+                    </HBox>
+                    <HBox class="sfpTrend warning" alignItems="Center" visible="{= ${/metrics/zeroQuantityOrders} === 0 }">
+                      <core:Icon src="sap-icon://show"/>
+                      <Text text="0 alerts today"/>
+                    </HBox>
+                    <HBox class="sfpSparkline" visible="{= ${/metrics/zeroQuantityOrders} > 0 }">
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                      <HBox class="sfpSparklineBar"/>
+                    </HBox>
+                    <Text text="Zero quantity orders flagged for review, indicating missing or incomplete releases." class="sfpKpiDescription"/>
+                  </VBox>
+                </FlexBox>
+              </VBox>
+            </IconTabFilter>
+
+            <IconTabFilter key="production" text="Production Orders" icon="sap-icon://product" class="sfpTabCard">
+              <VBox class="sfpContent">
+                <Panel headerText="Production Orders" class="sfpPanel sfpOrdersPanel">
+                  <Table id="productionTable" inset="false" class="sfpOrdersTable" items="{orders>/filtered/ProdordSet}" noDataText="No production orders match the selected filters" updateFinished="onProductionUpdateFinished">
+                    <columns>
+                      <Column><Text text="Order"/></Column>
+                      <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Type"/></Column>
+                      <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Material"/></Column>
+                      <Column minScreenWidth="Desktop" demandPopin="true"><Text text="Plant"/></Column>
+                      <Column hAlign="End"><Text text="Quantity"/></Column>
+                      <Column minScreenWidth="Desktop" demandPopin="true"><Text text="Dates"/></Column>
+                      <Column hAlign="End"><Text text="Actions"/></Column>
+                    </columns>
+                    <items>
+                      <ColumnListItem type="Navigation" press="onOrderPress">
+                        <cells>
+                          <ObjectIdentifier title="{orders>Aufnr}" text="{orders>Maktx}"/>
+                          <Text text="{path: 'orders>Auart', formatter: '.formatTextWithFallback'}"/>
+                          <Text text="{path: 'orders>Matnr', formatter: '.formatTextWithFallback'}"/>
+                          <Text text="{path: 'orders>Werks', formatter: '.formatTextWithFallback'}"/>
+                          <ObjectNumber number="{path: 'orders>Gamng', formatter: '.formatQuantity'}" unit="{orders>Meins}"/>
+                          <Text text="{parts: [{path: 'orders>Gstrp'}, {path: 'orders>Gltrp'}], formatter: '.formatDateRange'}"/>
+                          <HBox justifyContent="End">
+                            <Button icon="sap-icon://inspection" tooltip="Inspect order" press="onOrderPress"/>
+                          </HBox>
+                        </cells>
+                      </ColumnListItem>
+                    </items>
+                  </Table>
+                </Panel>
+              </VBox>
+            </IconTabFilter>
+
+            <IconTabFilter key="planned" text="Planned Orders" icon="sap-icon://calendar" class="sfpTabCard">
+              <VBox class="sfpContent">
+                <Panel headerText="Planned Orders" class="sfpPanel sfpOrdersPanel">
+                  <Table id="plannedTable" inset="false" class="sfpOrdersTable" items="{orders>/filtered/PlanordSet}" noDataText="No planned orders match the selected filters" updateFinished="onPlannedUpdateFinished">
+                    <columns>
+                      <Column><Text text="Order"/></Column>
+                      <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Material"/></Column>
+                      <Column minScreenWidth="Desktop" demandPopin="true"><Text text="Plant"/></Column>
+                      <Column hAlign="End"><Text text="Quantity"/></Column>
+                      <Column minScreenWidth="Desktop" demandPopin="true"><Text text="Dates"/></Column>
+                      <Column><Text text="MRP"/></Column>
+                      <Column hAlign="End"><Text text="Actions"/></Column>
+                    </columns>
+                    <items>
+                      <ColumnListItem type="Navigation" press="onOrderPress">
+                        <cells>
+                          <ObjectIdentifier title="{orders>Plnum}" text="{orders>Maktx}"/>
+                          <Text text="{path: 'orders>Matnr', formatter: '.formatTextWithFallback'}"/>
+                          <Text text="{path: 'orders>Werks', formatter: '.formatTextWithFallback'}"/>
+                          <ObjectNumber number="{path: 'orders>Gsmng', formatter: '.formatQuantity'}" unit="{orders>Meins}"/>
+                          <Text text="{parts: [{path: 'orders>Psttr'}, {path: 'orders>Pedtr'}], formatter: '.formatDateRange'}"/>
+                          <ObjectStatus text="{orders>Dispo}" state="Information"/>
+                          <HBox justifyContent="End">
+                            <Button icon="sap-icon://detail-view" tooltip="View details" press="onOrderPress"/>
+                          </HBox>
+                        </cells>
+                      </ColumnListItem>
+                    </items>
+                  </Table>
+                </Panel>
+              </VBox>
+            </IconTabFilter>
+          </items>
+        </IconTabBar>
+      </VBox>
+    </content>
+  </Page>
+</mvc:View>

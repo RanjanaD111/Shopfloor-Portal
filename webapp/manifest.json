@@ -1,0 +1,50 @@
+{
+  "_version": "1.32.0",
+  "sap.app": {
+    "id": "shopfloor.portal",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "title": "Shop Floor Portal",
+    "description": "SAP UI5 Shop Floor Portal"
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "sap-icon://factory"
+    }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "shopfloor.portal.view.Login",
+      "type": "XML",
+      "async": true
+    },
+    "dependencies": {
+      "minUI5Version": "1.60.0",
+      "libs": {
+        "sap.m": {}
+      }
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "shopfloor.portal.i18n.i18n",
+          "supportedLocales": [
+            "",
+            "en",
+            "en_US"
+          ],
+          "fallbackLocale": ""
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    }
+  }
+}
